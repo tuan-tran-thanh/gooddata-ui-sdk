@@ -8,8 +8,8 @@
  */
 const { config } = require("dotenv");
 
-const { runCypress } = require("./cypress.js");
-const { getRecordingsWorkspaceId } = require("./recordings.js");
+const { runCypress } = require("./lib/cypress.js");
+const { getRecordingsWorkspaceId } = require("./lib/recordings.js");
 
 async function main() {
     const withRecordings = process.argv.indexOf("--with-recordings") !== -1;
