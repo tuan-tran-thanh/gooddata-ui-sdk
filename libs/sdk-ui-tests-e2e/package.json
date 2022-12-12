@@ -32,7 +32,7 @@
         "styles"
     ],
     "config": {
-        "eslint": "-c .eslintrc.js --ext ts,tsx cypress/"
+        "eslint": "-c .eslintrc.cjs --ext js,jsx,ts,tsx ./"
     },
     "scripts": {
         "clean": "rm -rf ci dist esm scenarios/build coverage *.log styles/css",
@@ -43,11 +43,10 @@
         "eslint-ci": "mkdir -p ./ci/results && eslint -f checkstyle -o ci/results/eslint-results.xml $npm_package_config_eslint",
         "prettier-check": "prettier --check './**/*.{ts,js,cjs,tsx,jsx,json,scss,md,yaml,html}'",
         "prettier-write": "prettier --write './**/*.{ts,js,cjs,tsx,jsx,json,scss,md,yaml,html}'",
-        "dep-cruiser": "depcruise --validate .dependency-cruiser.js --output-type err-long cypress/",
-        "dep-cruiser-ci": "depcruise --validate .dependency-cruiser.js --output-type err-long cypress/",
+        "dep-cruiser": "depcruise --validate .dependency-cruiser.cjs --output-type err-long cypress/",
+        "dep-cruiser-ci": "depcruise --validate .dependency-cruiser.cjs --output-type err-long cypress/",
         "validate": "yarn dep-cruiser && yarn eslint && yarn prettier-check",
         "validate-ci": "yarn dep-cruiser-ci && yarn eslint-ci && yarn prettier-check",
-        "cypress": "node ./scripts/run_cypress_local.js",
         "docker-build": "yarn build-scenarios && DOCKER_BUILDKIT=0 docker build --file Dockerfile -t gooddata-ui-sdk .",
         "docker-build-local": "docker build --file Dockerfile_local -t gooddata-ui-sdk .",
         "run-isolated": "docker-compose -f docker-compose-isolated.yaml up --abort-on-container-exit --exit-code-from isolated-tests --force-recreate --always-recreate-deps --renew-anon-volumes",
@@ -55,6 +54,8 @@
         "run-isolated-local": "yarn docker-build-local && IMAGE_ID=gooddata-ui-sdk yarn run-isolated",
         "run-isolated-ci": "yarn docker-build && IMAGE_ID=gooddata-ui-sdk yarn run-isolated",
         "run-scenarios-local": "node ./scripts/run-scenarios-local.js",
+        "local-dev-test-visual": "node ./scripts/run_local_dev_isolated.js",
+        "local-dev-test-visual-recordings": "node ./scripts/run_local_dev_isolated.js --with-recordings",
         "local-dev-wiremock": "node ./scripts/run_local_dev_wiremock.js",
         "local-dev-wiremock-proxy": "node ./scripts/run_local_dev_wiremock.js --proxy",
         "local-dev-wiremock-proxy-verbose": "node ./scripts/run_local_dev_wiremock.js --proxy --verbose",

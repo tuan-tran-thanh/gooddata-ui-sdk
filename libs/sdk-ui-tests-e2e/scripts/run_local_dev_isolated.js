@@ -10,12 +10,7 @@
  * CYPRESS_TEST_TAGS (mandatory) comma-separated list of test tags to run from a specified file
  * FILTER (optional, mandatory when --with-recordings given) filename of a single test file to run
  *
- * Parameter --with-recordings makes it run against local Wiremock server and dockerized KD
- * and in this case:
- *    * wiremock server needs to be proxied correctly to given backend
- *    * authorization has to be provided to this script (USER_NAME, PASSWORD or TIGER_API_TOKEN)
- *
- * Parameter --with-kd-in-docker makes it run against local Wiremock server and dockerized KD
+ * Parameter --with-recordings makes it run against local Wiremock server and dockerized Scenarios app
  * and in this case:
  *    * wiremock server needs to be proxied correctly to given backend
  *    * authorization has to be provided to this script (USER_NAME, PASSWORD or TIGER_API_TOKEN)
@@ -32,11 +27,9 @@ import { wiremockReset, wiremockImportMappings, wiremockMockLogRequests } from "
 async function main() {
     const withRecordings = process.argv.indexOf("--with-recordings") !== -1;
 
-    const kdInDocker = process.argv.indexOf("--with-kd-in-docker") !== -1;
-
     const updateSnapshots = process.argv.indexOf("--update-snapshots") !== -1;
 
-    const host = withRecordings || kdInDocker ? "http://localhost:9500" : "https://localhost:8443";
+    const host = "http://localhost:9500";
     const mockServer = withRecordings ? "localhost:8080" : undefined;
 
     const {
@@ -139,7 +132,7 @@ async function main() {
                 workspaceId,
                 sdkBackend: SDK_BACKEND,
                 tagsFilter: CYPRESS_TEST_TAGS.split(","),
-                config: `baseUrl=${host},testFiles=**/${FILTER}`,
+                config: `baseUrl=${host},specPattern=**/${FILTER}`,
             });
         });
         await wiremockReset(mockServer);

@@ -6,6 +6,8 @@ COPY . .
 
 ENV FORCE_COLOR 0
 
+RUN yarn install && yarn build-scenarios
+
 FROM nginxinc/nginx-unprivileged:1.23.1-alpine
 
 COPY --from=build-stage ./nginx/nginx.conf /etc/nginx/nginx.conf

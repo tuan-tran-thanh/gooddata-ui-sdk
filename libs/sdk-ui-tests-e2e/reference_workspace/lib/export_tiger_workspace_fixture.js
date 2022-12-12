@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 // (C) 2021-2022 GoodData Corporation
 
-import fs from "fs";
-
 import "../../scripts/env.js";
-import { getTigerBackendSdk, exportTigerFixture } from "@gooddata/fixtures";
+import { exportTigerFixture } from "@gooddata/fixtures";
 import { logLn } from "@gooddata/fixtures/logger.js";
-import _ from "lodash";
-import stringify from "json-stable-stringify";
 
 import { exportCatalogTiger } from "../export_catalog.js";
 import { TIGER_FIXTURE_METADATA_EXTENSIONS } from "../constant.js";

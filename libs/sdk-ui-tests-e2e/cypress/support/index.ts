@@ -4,5 +4,5 @@ import "./recordings";
 import "cypress-real-events/support";
 import "./featureHub";
 
-import registerCypressGrep from "@cypress/grep";
+const registerCypressGrep = require("@cypress/grep");
 registerCypressGrep();

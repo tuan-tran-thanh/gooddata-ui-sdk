@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 // (C) 2021-2022 GoodData Corporation
-import fs from "fs";
 
-import stringify from "json-stable-stringify";
-import { factory } from "@gooddata/api-client-bear";
 import { exportBearFixture } from "@gooddata/fixtures";
 
-import { BEAR_FIXTURE_PATHS, BEAR_FIXTURE_METADATA_EXTENSIONS } from "../constant.js";
+import { BEAR_FIXTURE_METADATA_EXTENSIONS } from "../constant.js";
 import { exportCatalogBear } from "../export_catalog.js";
 
 import "../../scripts/env.js";
