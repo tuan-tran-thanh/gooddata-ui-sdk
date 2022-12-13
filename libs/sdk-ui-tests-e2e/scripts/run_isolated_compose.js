@@ -6,7 +6,9 @@
  * It controls the execution of the isolated tests in docker-compose
  */
 import { execSync } from "child_process";
+import { getAllFiles } from "./getSpecFiles.js";
 import fs from "fs";
+import path from "path";
 
 import "./env.js";
 
@@ -92,7 +94,8 @@ async function main() {
         }
 
         if (recording) {
-            deleteRecordings(specFilesFilter, SDK_BACKEND, CYPRESS_TEST_TAGS.split(","));
+            // deleteRecordings(specFilesFilter, SDK_BACKEND, CYPRESS_TEST_TAGS.split(","));
+            // The whole recording dir will be purged anyway in scripts/run-cypress-recording-*.sh
         } else if (!recordingsPresent(SDK_BACKEND)) {
             process.stderr.write("Recordings are missing. Run again with the --record parameter.\n");
             process.exit(0);
@@ -112,35 +115,30 @@ async function main() {
             testWorkspaceId = getRecordingsWorkspaceId();
         }
 
-        const TESTS_DIR = "./cypress/integration/01-sdk-ui-dashboard";
-        const files = fs
-            .readdirSync(TESTS_DIR)
-            .filter((file) => file.includes(".spec.ts"))
-            .filter((file) => {
-                if (specFilesFilter === "") {
-                    return true;
-                }
-
-                return file.startsWith(specFilesFilter);
-            });
-
+        const TESTS_DIR = "./cypress/integration";
+        const files = getAllFiles(TESTS_DIR);
         execSync(`rm -rf ./cypress/results`);
+
+        if (!fs.existsSync(`./recordings/mappings/${SDK_BACKEND}`)) {
+            execSync(`mkdir -p ./recordings/mappings/${SDK_BACKEND}`);
+        }
 
         const testTags = CYPRESS_TEST_TAGS.split(",");
         let cypressExitCode = 0;
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
+            let fileName = path.basename(file);
             process.stdout.write(`file: ${file} (${i + 1} of ${files.length})\n`);
 
             // skip if we have tags and the file does not contain at least one of the gats
-            if (testTags.length && !fileContainsString(`${TESTS_DIR}/${file}`, testTags)) {
+            if (testTags.length && !fileContainsString(`${file}`, testTags)) {
                 process.stdout.write(
                     `skip: ${file} as it does not contain requested tags (${CYPRESS_TEST_TAGS})\n`,
                 );
                 continue;
             }
 
-            const currentTestFileMappings = `./recordings/mappings/${SDK_BACKEND}/mapping-${file}.json`;
+            const currentTestFileMappings = `./recordings/mappings/${SDK_BACKEND}/mapping-${fileName}.json`;
 
             if (recording) {
                 await wiremockStartRecording(wiremockHost, HOST);
@@ -157,7 +155,7 @@ async function main() {
                     appHost: CYPRESS_HOST,
                     mockServer: wiremockHost,
                     authorization,
-                    specFilesFilter: file,
+                    specFilesFilter: fileName,
                     workspaceId: testWorkspaceId,
                     tagsFilter: testTags,
                     config: recording ? "retries=0,baseUrl=http://gooddata-ui-sdk-scenarios:9500" : undefined, // override cypress.json and have no retries when recording, this breaks mappings storage,
@@ -188,7 +186,7 @@ async function main() {
 
         if (recording) {
             const testFileMappings = files.map(
-                (fileName) => `./recordings/mappings/${SDK_BACKEND}/mapping-${fileName}.json`,
+                (file) => `./recordings/mappings/${SDK_BACKEND}/mapping-${path.basename(file)}.json`,
             );
             process.stdout.write(`Sanitizing mappings for: ${JSON.stringify(testFileMappings)}\n`);
             sanitizeCredentials(testFileMappings);
