@@ -39,9 +39,6 @@ async function main() {
         process.stderr.write("Running the isolated tests. Run only in docker-compose\n");
 
         const recording = process.argv.indexOf("--record") !== -1;
-        const filterArg = process.argv.find((arg) => arg.indexOf("--filter") === 0);
-        const specFilesFilter = filterArg ? filterArg.slice("--filter=".length) : "";
-
         const {
             SDK_BACKEND,
             USER_NAME,
@@ -52,7 +49,11 @@ async function main() {
             CYPRESS_HOST,
             CYPRESS_TEST_TAGS,
             ZUUL_PIPELINE,
+            FILTER,
         } = process.env;
+        const specFilesFilter = FILTER
+            ? { specFilesFilter: FILTER.split(",").map((x) => (x.endsWith(".spec.ts") ? x : x + ".spec.ts")) }
+            : {};
 
         if (!CYPRESS_TEST_TAGS) {
             process.stderr.write("Isolated tests need CYPRESS_TEST_TAGS\n");
@@ -116,7 +117,7 @@ async function main() {
         }
 
         const TESTS_DIR = "./cypress/integration";
-        const files = getAllFiles(TESTS_DIR);
+        const files = getAllFiles(TESTS_DIR, specFilesFilter.specFilesFilter);
         execSync(`rm -rf ./cypress/results`);
 
         if (!fs.existsSync(`./recordings/mappings/${SDK_BACKEND}`)) {
